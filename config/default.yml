@@ -503,6 +503,7 @@ Metrics/CyclomaticComplexity:
 Metrics/LineLength:
   Max: 80
   AllowURI: true
+  IgnoreHeadComments: false
   URISchemes:
     - http
     - https
