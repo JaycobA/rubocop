@@ -13,8 +13,13 @@ module RuboCop
         MSG = 'Line is too long. [%d/%d]'
 
         def investigate(processed_source)
+          in_head_comments = true
+
           processed_source.lines.each_with_index do |line, index|
+            in_head_comments = false unless comment_line?(line)
             next unless line.length > max
+
+            next if ignore_head_comments? and in_head_comments
 
             if allow_uri?
               uri_range = find_excessive_uri_range(line)
@@ -45,6 +50,10 @@ module RuboCop
 
         def allow_uri?
           cop_config['AllowURI']
+        end
+
+        def ignore_head_comments?
+          cop_config['IgnoreHeadComments']
         end
 
         def allowed_uri_position?(line, uri_range)

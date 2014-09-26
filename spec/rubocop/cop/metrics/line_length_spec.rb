@@ -23,6 +23,46 @@ describe RuboCop::Cop::Metrics::LineLength, :config do
     expect(cop.offenses).to be_empty
   end
 
+  context 'when IgnoreHeadComments' do
+    let(:cop_config) { { 'Max' => 80, 'IgnoreHeadComments' => true } }
+
+    context 'on a single comment line in head' do
+      let(:source) { <<-END }
+        # Some documentation comment... probably from a documentation generation framework producing markup that is longer than the usual line length
+      END
+
+      it 'accepts the line' do
+        inspect_source(cop, source)
+        expect(cop.offenses).to be_empty
+      end
+    end
+
+    context 'with mixed input not starting with a comment' do
+      let(:source) { <<-END }
+        require 'foo'
+        # Some documentation comment... probably from a documentation generation framework producing markup that is longer than the usual line length
+      END
+
+      it 'fails' do
+        inspect_source(cop, source)
+        expect(cop.offenses).not_to be_empty
+      end
+    end
+
+    context 'with a blank line between comments' do
+      let(:source) { <<-END }
+        # Some documentation comment...
+
+        # Some documentation comment... probably from a documentation generation framework producing markup that is longer than the usual line length
+      END
+
+      it 'fails' do
+        inspect_source(cop, source)
+        expect(cop.offenses).not_to be_empty
+      end
+    end
+  end
+
   context 'when AllowURI option is enabled' do
     let(:cop_config) { { 'Max' => 80, 'AllowURI' => true } }
 
